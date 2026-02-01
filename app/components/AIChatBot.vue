@@ -62,7 +62,7 @@
 
     <!-- Toggle Button -->
     <button @click="chatOpen = !chatOpen"
-      class="w-14 h-14 bg-gradient-to-r from-indigo-600 to-teal-500 rounded-full shadow-lg shadow-indigo-500/40 flex items-center justify-center text-white hover:scale-110 transition-transform duration-300 group">
+      class="w-14 h-14 bg-gradient-to-r from-indigo-600 to-teal-500 rounded-full shadow-lg shadow-indigo-500/40 flex items-center justify-center text-white hover:scale-110 transition-transform duration-300 group cursor-pointer">
       <Icon v-if="!chatOpen" name="lucide:message-square-more" class="w-7 h-7" />
       <Icon v-else name="lucide:chevron-down" class="w-7 h-7" />
       <!-- Notification Dot -->
