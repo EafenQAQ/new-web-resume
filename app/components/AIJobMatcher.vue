@@ -36,14 +36,25 @@
               <p>等待输入职位描述...</p>
             </div>
 
-            <div v-if="isAnalyzing" class="flex-grow flex flex-col justify-center items-center space-y-4">
-              <div class="flex space-x-2">
-                <div class="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" />
-                <div class="w-3 h-3 bg-teal-500 rounded-full animate-bounce" style="animation-delay: 0.1s" />
-                <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.2s" />
+            <div v-if="isAnalyzing" class="flex-grow flex flex-col justify-center space-y-6">
+              <!-- 进度条 -->
+              <div class="w-full">
+                <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                  <div
+                    class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-500 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+                    :style="{ width: `${progress}%` }">
+                    <div
+                      class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                  </div>
+                  <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                    {{ progress }}%
+                  </span>
+                </div>
               </div>
-              <p class="text-sm text-slate-400 animate-pulse">
-                正在阅读简历与 JD...
+
+              <!-- 进度文字 -->
+              <p class="text-sm text-slate-400 text-center animate-pulse">
+                {{ progressText }}
               </p>
             </div>
 
@@ -79,6 +90,36 @@ const jobDescription = ref('')
 const isAnalyzing = ref(false)
 const analysisResult = ref<AnalysisResult | null>(null)
 const errorMessage = ref('')
+// 进度条相关
+const progress = ref(0)
+const progressText = ref('正在初始化...')
+
+// --------------------
+// 进度条实现
+// --------------------
+const progressSteps = [
+  { percent: 20, text: '正在读取简历数据...' },
+  { percent: 40, text: '正在解析职位描述...' },
+  { percent: 60, text: 'AI 正在分析匹配度...' },
+  { percent: 80, text: '生成推荐语中...' },
+  { percent: 95, text: '即将完成...' }
+]
+
+const startProgress = () => {
+  progress.value = 0
+  progressText.value = '开始分析...'
+
+  let stepIndex = 0
+  const interval = setInterval(() => {
+    if (stepIndex < progressSteps.length) {
+      progress.value = progressSteps[stepIndex].percent
+      progressText.value = progressSteps[stepIndex].text
+      stepIndex++
+    }
+  }, 2000)
+
+  return () => clearInterval(interval)
+}
 
 const { analyzeJobMatch } = useAgent()
 
@@ -89,10 +130,15 @@ const handleAnalyze = async () => {
   analysisResult.value = null
   errorMessage.value = ''
 
+  const stopProgress = startProgress()
+
   try {
     console.log('Starting analysis...')
     const result = await analyzeJobMatch(jobDescription.value)
     console.log('Analysis result:', result)
+
+    progress.value = 100
+    progressText.value = '分析完成！'
 
     if (result) {
       analysisResult.value = result
@@ -103,7 +149,11 @@ const handleAnalyze = async () => {
     console.error('Analysis error:', error)
     errorMessage.value = `发生错误: ${error instanceof Error ? error.message : '未知错误'}`
   } finally {
-    isAnalyzing.value = false
+    stopProgress()
+    setTimeout(() => {
+      isAnalyzing.value = false
+      progress.value = 0
+    }, 500)
   }
 }
 
@@ -139,5 +189,19 @@ const renderMarkdown = (text: string) => {
   to {
     opacity: 1;
   }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
 }
 </style>
