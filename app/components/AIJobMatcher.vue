@@ -5,7 +5,8 @@
 
       <div class="relative z-10">
         <div class="flex items-center mb-6">
-          <div class="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mr-4 shadow-lg shadow-indigo-500/20">
+          <div
+            class="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mr-4 shadow-lg shadow-indigo-500/20">
             <Icon name="lucide:sparkles" class="w-6 h-6 text-white" />
           </div>
           <div>
@@ -19,34 +20,23 @@
             <p class="text-slate-300">
               粘贴您的 JD (职位描述)，AI 将根据我的简历自动分析匹配度并生成推荐语。
             </p>
-            <textarea
-              v-model="jobDescription"
-              placeholder="请在此粘贴职位描述 (Job Description)..."
-              class="w-full h-48 bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none transition-all"
-            />
-            <button
-              @click="handleAnalyze"
-              :disabled="isAnalyzing || !jobDescription"
-              class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 disabled:cursor-not-allowed rounded-lg font-bold transition-all flex justify-center items-center"
-            >
+            <textarea v-model="jobDescription" placeholder="请在此粘贴职位描述 (Job Description)..."
+              class="w-full h-48 bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none transition-all" />
+            <button @click="handleAnalyze" :disabled="isAnalyzing || !jobDescription"
+              class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-700 disabled:cursor-not-allowed rounded-lg font-bold transition-all flex justify-center items-center">
               <Icon v-if="isAnalyzing" name="lucide:loader-2" class="animate-spin mr-2 w-5 h-5" />
               {{ isAnalyzing ? '正在分析中...' : '开始分析匹配度' }}
             </button>
           </div>
 
           <div class="md:w-1/2 bg-slate-900/50 rounded-xl p-6 border border-slate-700 min-h-[300px] flex flex-col">
-            <div
-              v-if="!analysisResult && !isAnalyzing && !errorMessage"
-              class="flex-grow flex flex-col justify-center items-center text-slate-500"
-            >
+            <div v-if="!analysisResult && !isAnalyzing && !errorMessage"
+              class="flex-grow flex flex-col justify-center items-center text-slate-500">
               <Icon name="lucide:bar-chart-3" class="w-12 h-12 mb-3 opacity-50" />
               <p>等待输入职位描述...</p>
             </div>
 
-            <div
-              v-if="isAnalyzing"
-              class="flex-grow flex flex-col justify-center items-center space-y-4"
-            >
+            <div v-if="isAnalyzing" class="flex-grow flex flex-col justify-center items-center space-y-4">
               <div class="flex space-x-2">
                 <div class="w-3 h-3 bg-indigo-500 rounded-full animate-bounce" />
                 <div class="w-3 h-3 bg-teal-500 rounded-full animate-bounce" style="animation-delay: 0.1s" />
@@ -57,22 +47,22 @@
               </p>
             </div>
 
-            <div
-              v-if="errorMessage"
-              class="flex-grow flex flex-col justify-center items-center text-red-400 p-4 bg-red-900/20 rounded-lg"
-            >
+            <div v-if="errorMessage"
+              class="flex-grow flex flex-col justify-center items-center text-red-400 p-4 bg-red-900/20 rounded-lg">
               <Icon name="lucide:alert-circle" class="w-12 h-12 mb-3" />
               <p class="text-center text-sm">{{ errorMessage }}</p>
             </div>
 
             <div v-if="analysisResult" class="animate-fade-in">
               <div class="flex items-end mb-4">
-                <span class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-indigo-400">
+                <span
+                  class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-indigo-400">
                   {{ analysisResult.score }}%
                 </span>
                 <span class="text-slate-400 ml-2 mb-1">匹配度</span>
               </div>
-              <div class="prose prose-invert prose-sm max-w-none markdown-body" v-html="renderMarkdown(analysisResult.content)" />
+              <div class="prose prose-invert prose-sm max-w-none markdown-body"
+                v-html="renderMarkdown(analysisResult.content)" />
             </div>
           </div>
         </div>
@@ -90,7 +80,7 @@ const isAnalyzing = ref(false)
 const analysisResult = ref<AnalysisResult | null>(null)
 const errorMessage = ref('')
 
-const { analyzeJobMatch } = useGemini()
+const { analyzeJobMatch } = useAgent()
 
 const handleAnalyze = async () => {
   if (!jobDescription.value) return
@@ -145,6 +135,7 @@ const renderMarkdown = (text: string) => {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

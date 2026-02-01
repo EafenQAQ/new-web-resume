@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   // Runtime config for environment variables
   runtimeConfig: {
     public: {
-      geminiApiKey: process.env.NUXT_PUBLIC_GEMINI_API_KEY,
+      arkApiKey: process.env.NUXT_PUBLIC_ARK_API_KEY,
+      arkModelId: process.env.NUXT_PUBLIC_ARK_MODEL_ID,
     },
   },
 
