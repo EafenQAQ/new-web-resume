@@ -41,7 +41,7 @@
               <div class="w-full">
                 <div class="relative w-full h-3 bg-slate-800 rounded-full overflow-hidden shadow-inner">
                   <div
-                    class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-500 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
+                    class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-teal-500 rounded-full transition-all duration-3000 ease-out relative overflow-hidden"
                     :style="{ width: `${progress}%` }">
                     <div
                       class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -106,8 +106,8 @@ const progressSteps = [
 ]
 
 const startProgress = () => {
-  progress.value = 0
-  progressText.value = '开始分析...'
+  progress.value = 0 // 重置进度
+  progressText.value = '开始分析...' // 重置文字
 
   let stepIndex = 0
   const interval = setInterval(() => {
@@ -116,7 +116,7 @@ const startProgress = () => {
       progressText.value = progressSteps[stepIndex].text
       stepIndex++
     }
-  }, 2000)
+  }, 3000)
 
   return () => clearInterval(interval)
 }
