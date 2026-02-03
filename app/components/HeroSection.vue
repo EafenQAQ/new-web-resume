@@ -1,16 +1,17 @@
 <template>
   <section id="about" class="min-h-[85vh] flex flex-col justify-center items-start animate-slide-up">
-    <div class="mb-4 inline-flex items-center px-3 py-1 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-300 text-xs font-medium">
+    <div
+      class="mb-4 inline-flex items-center px-3 py-1 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-300 text-xs font-medium">
       <span class="animate-pulse mr-2 w-2 h-2 rounded-full bg-teal-400" />
       Open to Work
     </div>
 
     <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-      你好, 我是 <span class="text-gradient">高一帆</span>
+      <span class="text-gradient">Hi!</span> 初次见面
     </h1>
 
     <p class="text-xl md:text-2xl text-slate-400 max-w-3xl mb-8 leading-relaxed">
-      一个从<span class="text-indigo-400 font-semibold">应用心理学</span>跨界，
+      我是一个从<span class="text-indigo-400 font-semibold">应用心理学</span>跨界，
       凭借<span class="text-teal-400 font-semibold">自驱力</span>闯入前端领域的开发者。
       <br class="hidden md:block">
       我不仅写代码，更懂得用<span class="text-indigo-400">同理心</span>构建用户体验。
@@ -32,16 +33,12 @@
     </div>
 
     <div class="flex space-x-4">
-      <a
-        href="#projects"
-        class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1"
-      >
+      <a href="#projects"
+        class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1">
         查看项目
       </a>
-      <a
-        href="mailto:15847007426@163.com"
-        class="px-8 py-3 border border-slate-600 rounded-lg font-bold hover:bg-white/5 transition-all flex items-center"
-      >
+      <a href="mailto:15847007426@163.com"
+        class="px-8 py-3 border border-slate-600 rounded-lg font-bold hover:bg-white/5 transition-all flex items-center">
         <Icon name="lucide:mail" class="w-4 h-4 mr-2" />
         联系我
       </a>
@@ -53,19 +50,13 @@
         <Icon name="lucide:map-pin" class="w-4 h-4 mr-1" />
         杭州
       </span>
-      <a
-        href="https://github.com/EafenQAQ"
-        target="_blank"
-        class="flex items-center hover:text-white transition-colors"
-      >
+      <a href="https://github.com/EafenQAQ" target="_blank"
+        class="flex items-center hover:text-white transition-colors">
         <Icon name="lucide:github" class="w-4 h-4 mr-1" />
         EafenQAQ
       </a>
-      <a
-        href="https://eafen-resume.netlify.app/"
-        target="_blank"
-        class="flex items-center hover:text-white transition-colors"
-      >
+      <a href="https://eafen-resume.netlify.app/" target="_blank"
+        class="flex items-center hover:text-white transition-colors">
         <Icon name="lucide:globe" class="w-4 h-4 mr-1" />
         Web版简历
       </a>
@@ -90,6 +81,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
