@@ -31,6 +31,7 @@ export interface Project {
   highlights: string[]
   github?: string
   demo?: string
+  preview?: string
 }
 
 export interface SkillCategory {
