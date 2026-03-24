@@ -11,7 +11,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 const containerRef = ref<HTMLDivElement>()
 const canvasRef = ref<HTMLCanvasElement>()
 
-// Three.js objects
+// Three.js 对象
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
 let renderer: THREE.WebGLRenderer
@@ -20,27 +20,41 @@ let lineSegments: THREE.LineSegments
 let animationId: number
 let isMobile = false
 
-// Mouse position for desktop interaction
-const mouse = new THREE.Vector2(0, 0)
-const targetMouse = new THREE.Vector2(0, 0)
+// 交互状态控制
+let isDragging = false
+let lastMouseX = 0
+let lastMouseY = 0
+let rotationVelocityX = 0
+let rotationVelocityY = 0
+let autoRotate = true
+let isInertiaActive = false
 
-// Constellation configuration
-const NODE_COUNT = 120
-const CONNECTION_DISTANCE = 2.2
-const SPHERE_RADIUS = 3
+// 自动旋转的时间/角度基准
+let autoRotateStartTime: number = 0
+let autoRotateStartRotationY: number = 0
+
+// 配置
+const ICOSAHEDRON_RADIUS = 3.5
+const ICOSAHEDRON_DETAIL = 1
 const COLORS = {
   indigo: new THREE.Color(0x6366f1),
-  teal: new THREE.Color(0x14b8a6),
-  pink: new THREE.Color(0xf43f5e)
+  teal: new THREE.Color(0x14b8a6)
 }
 
 onMounted(() => {
   if (!containerRef.value || !canvasRef.value) return
 
   isMobile = window.innerWidth < 768
+  
   initScene()
   createConstellation()
   setupEventListeners()
+  
+  // 初始化自动旋转起点
+  const time = performance.now() * 0.001
+  autoRotateStartTime = time
+  autoRotateStartRotationY = 0
+  
   animate()
 })
 
@@ -48,88 +62,45 @@ onUnmounted(() => {
   cancelAnimationFrame(animationId)
   window.removeEventListener('resize', handleResize)
   if (!isMobile) {
+    canvasRef.value?.removeEventListener('mousedown', handleMouseDown)
     window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
   }
-
-  // Dispose Three.js resources
-  if (renderer) {
-    renderer.dispose()
-  }
-  if (nodeGroup) {
-    nodeGroup.traverse((child: THREE.Object3D) => {
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose()
-        ;(child.material as THREE.Material).dispose()
-      }
-    })
-  }
-  if (lineSegments) {
-    lineSegments.geometry.dispose()
-    ;(lineSegments.material as THREE.Material).dispose()
-  }
+  if (renderer) renderer.dispose()
 })
 
 function initScene() {
   const container = containerRef.value!
-  const width = container.clientWidth
-  const height = container.clientHeight
-
-  // Scene
   scene = new THREE.Scene()
-
-  // Camera with wider FOV for more depth perception
-  camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100)
+  camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 100)
   camera.position.z = 8
 
-  // Renderer with transparent background
   renderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value!,
     alpha: true,
     antialias: true
   })
-  renderer.setSize(width, height)
+  renderer.setSize(container.clientWidth, container.clientHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-  // Important: clear color is transparent
-  renderer.setClearColor(0x000000, 0)
 }
 
 function createConstellation() {
-  const nodePositions: THREE.Vector3[] = []
-
-  // Create group to hold all nodes
+  const icosahedron = new THREE.IcosahedronGeometry(ICOSAHEDRON_RADIUS, ICOSAHEDRON_DETAIL)
+  const vertices = icosahedron.attributes.position
   nodeGroup = new THREE.Group()
 
-  // Generate nodes in spherical distribution
-  for (let i = 0; i < NODE_COUNT; i++) {
-    const node = createNode(i)
-    nodePositions.push(node.position)
+  for (let i = 0; i < vertices.count; i++) {
+    const node = createNode(i, new THREE.Vector3(vertices.getX(i), vertices.getY(i), vertices.getZ(i)))
     nodeGroup.add(node)
   }
-
   scene.add(nodeGroup)
-
-  // Create lines connecting nearby nodes
-  createLines(nodePositions)
+  createIcosahedronLines(icosahedron)
 }
 
-function createNode(index: number): THREE.Mesh {
-  // Random position on sphere surface with some thickness
-  const theta = Math.random() * Math.PI * 2
-  const phi = Math.acos(2 * Math.random() - 1)
-  
-  // Add randomness to radius for depth variation
-  const radius = SPHERE_RADIUS + (Math.random() - 0.5) * 1.5
-  
-  const x = radius * Math.sin(phi) * Math.cos(theta)
-  const y = radius * Math.sin(phi) * Math.sin(theta)
-  const z = radius * Math.cos(phi)
-
-  // Color gradient based on position
-  const normalizedY = (y + SPHERE_RADIUS) / (SPHERE_RADIUS * 2)
+function createNode(index: number, position: THREE.Vector3): THREE.Mesh {
+  const normalizedY = (position.y + ICOSAHEDRON_RADIUS) / (ICOSAHEDRON_RADIUS * 2)
   const color = new THREE.Color().lerpColors(COLORS.indigo, COLORS.teal, normalizedY)
-
-  // Create glowing sphere for node
-  const geometry = new THREE.SphereGeometry(0.08 + Math.random() * 0.05, 16, 16)
+  const geometry = new THREE.SphereGeometry(0.08, 32, 32)
   const material = new THREE.ShaderMaterial({
     uniforms: {
       uColor: { value: color },
@@ -138,11 +109,8 @@ function createNode(index: number): THREE.Mesh {
     },
     vertexShader: `
       varying vec3 vNormal;
-      varying vec3 vPosition;
-      
       void main() {
         vNormal = normalize(normalMatrix * normal);
-        vPosition = position;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
@@ -151,198 +119,144 @@ function createNode(index: number): THREE.Mesh {
       uniform float uTime;
       uniform float uIndex;
       varying vec3 vNormal;
-      varying vec3 vPosition;
-      
       void main() {
-        // Glow effect based on normal direction
         float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-        
-        // Pulsing effect with offset per node
         float pulse = sin(uTime * 2.0 + uIndex * 0.5) * 0.2 + 0.8;
-        
-        // Bright core
-        vec3 finalColor = uColor * (intensity * 2.0 + 0.5) * pulse;
-        
-        // Add subtle white center
-        finalColor += vec3(0.3, 0.35, 0.45) * (1.0 - intensity) * 0.5;
-        
-        gl_FragColor = vec4(finalColor, 0.9);
+        gl_FragColor = vec4(uColor * (intensity * 2.0 + 0.5) * pulse, 0.9);
       }
     `,
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false
   })
-
   const node = new THREE.Mesh(geometry, material)
-  node.position.set(x, y, z)
-
-  // Store original position for animation
-  node.userData.originalPos = new THREE.Vector3(x, y, z)
-  node.userData.randomOffset = Math.random() * Math.PI * 2
-
+  node.position.copy(position)
   return node
 }
 
-function createLines(positions: THREE.Vector3[]) {
-  const linePositions: number[] = []
-  const lineColors: number[] = []
-
-  // Connect nearby nodes
-  for (let i = 0; i < positions.length; i++) {
-    const posI = positions[i]
-    if (!posI) continue
-    
-    for (let j = i + 1; j < positions.length; j++) {
-      const posJ = positions[j]
-      if (!posJ) continue
-      
-      const distance = posI.distanceTo(posJ)
-
-      if (distance < CONNECTION_DISTANCE) {
-        // Add line segment
-        linePositions.push(
-          posI.x, posI.y, posI.z,
-          posJ.x, posJ.y, posJ.z
-        )
-
-        // Calculate opacity based on distance
-        const opacity = 1.0 - (distance / CONNECTION_DISTANCE)
-        
-        // Use average color with opacity
-        const avgColor = new THREE.Color().lerpColors(
-          COLORS.indigo,
-          COLORS.teal,
-          (posI.y + posJ.y + SPHERE_RADIUS * 2) / (SPHERE_RADIUS * 4)
-        )
-
-        lineColors.push(
-          avgColor.r, avgColor.g, avgColor.b, opacity,
-          avgColor.r, avgColor.g, avgColor.b, opacity
-        )
-      }
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry()
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3))
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 4))
-
+function createIcosahedronLines(icosahedron: THREE.IcosahedronGeometry) {
+  const wireframe = new THREE.WireframeGeometry(icosahedron)
   const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 }
-    },
-    vertexShader: `
-      attribute vec4 color;
-      varying vec4 vColor;
-      
-      void main() {
-        vColor = color;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      varying vec4 vColor;
-      uniform float uTime;
-      
-      void main() {
-        // Add subtle pulsing to lines
-        float pulse = sin(uTime * 1.5) * 0.1 + 0.9;
-        
-        // Fade line with distance effect
-        float alpha = vColor.a * pulse;
-        
-        // Make lines glow slightly
-        vec3 glow = vColor.rgb * (1.0 + 0.3 * pulse);
-        
-        gl_FragColor = vec4(glow, alpha * 0.6);
-      }
-    `,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
+    uniforms: { uTime: { value: 0 }, uColor: { value: COLORS.indigo } },
+    vertexShader: `void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform vec3 uColor; void main() { gl_FragColor = vec4(uColor, 0.2); }`,
+    transparent: true
   })
-
-  lineSegments = new THREE.LineSegments(geometry, material)
+  lineSegments = new THREE.LineSegments(wireframe, material)
   scene.add(lineSegments)
 }
 
+// --- 事件处理逻辑 ---
+
 function setupEventListeners() {
   window.addEventListener('resize', handleResize)
-
-  if (!isMobile) {
+  if (!isMobile && canvasRef.value) {
+    canvasRef.value.addEventListener('mousedown', handleMouseDown)
     window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
   }
 }
 
 function handleResize() {
-  if (!containerRef.value || !renderer || !camera) return
-
-  isMobile = window.innerWidth < 768
+  if (!containerRef.value) return
   const width = containerRef.value.clientWidth
   const height = containerRef.value.clientHeight
-
   camera.aspect = width / height
   camera.updateProjectionMatrix()
   renderer.setSize(width, height)
 }
 
-function handleMouseMove(event: MouseEvent) {
-  // Normalize mouse position to -1 to 1
-  targetMouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  targetMouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+function handleMouseDown(e: MouseEvent) {
+  isDragging = true
+  autoRotate = false
+  isInertiaActive = false
+  lastMouseX = e.clientX
+  lastMouseY = e.clientY
+  rotationVelocityX = 0
+  rotationVelocityY = 0
 }
+
+function handleMouseMove(e: MouseEvent) {
+  if (!isDragging || !nodeGroup) return
+
+  const deltaX = e.clientX - lastMouseX
+  const deltaY = e.clientY - lastMouseY
+
+  // 灵敏度系数
+  const sensitivity = 0.005
+  nodeGroup.rotation.y += deltaX * sensitivity
+  nodeGroup.rotation.x += deltaY * sensitivity
+  
+  if (lineSegments) {
+    lineSegments.rotation.y = nodeGroup.rotation.y
+    lineSegments.rotation.x = nodeGroup.rotation.x
+  }
+
+  // 计算即时速度
+  rotationVelocityY = deltaX * sensitivity
+  rotationVelocityX = deltaY * sensitivity
+
+  lastMouseX = e.clientX
+  lastMouseY = e.clientY
+}
+
+function handleMouseUp() {
+  if (!isDragging) return
+  isDragging = false
+  // 开启惯性模式
+  isInertiaActive = true
+}
+
+// --- 核心动画循环 ---
 
 function animate() {
   animationId = requestAnimationFrame(animate)
-
   const time = performance.now() * 0.001
 
-  // Smooth mouse following
-  mouse.x += (targetMouse.x - mouse.x) * 0.05
-  mouse.y += (targetMouse.y - mouse.y) * 0.05
-
-  // Rotate entire constellation slowly
   if (nodeGroup) {
-    nodeGroup.rotation.y = time * 0.1
-    nodeGroup.rotation.x = Math.sin(time * 0.05) * 0.1
+    if (isDragging) {
+      // 拖拽中逻辑在 handleMouseMove 处理
+    } else if (isInertiaActive) {
+      // 1. 惯性逻辑
+      nodeGroup.rotation.y += rotationVelocityY
+      nodeGroup.rotation.x += rotationVelocityX
+      if (lineSegments) {
+        lineSegments.rotation.y = nodeGroup.rotation.y
+        lineSegments.rotation.x = nodeGroup.rotation.x
+      }
 
-    // Add mouse influence on desktop
-    if (!isMobile) {
-      nodeGroup.rotation.y += mouse.x * 0.2
-      nodeGroup.rotation.x += mouse.y * 0.1
-    }
-  }
+      // 2. 衰减惯性 (摩擦力)
+      rotationVelocityY *= 0.95
+      rotationVelocityX *= 0.95
 
-  // Rotate lines to match nodes
-  if (lineSegments) {
-    lineSegments.rotation.y = time * 0.1
-    lineSegments.rotation.x = Math.sin(time * 0.05) * 0.1
-
-    if (!isMobile) {
-      lineSegments.rotation.y += mouse.x * 0.2
-      lineSegments.rotation.x += mouse.y * 0.1
-    }
-
-    // Update line shader
-    if (lineSegments.material instanceof THREE.ShaderMaterial && lineSegments.material.uniforms.uTime) {
-      lineSegments.material.uniforms.uTime.value = time
-    }
-  }
-
-  // Animate individual nodes
-  if (nodeGroup) {
-    nodeGroup.children.forEach((child: THREE.Object3D) => {
-      if (child instanceof THREE.Mesh && child.material instanceof THREE.ShaderMaterial && child.material.uniforms.uTime) {
-        child.material.uniforms.uTime.value = time
-
-        // Add subtle floating motion
-        const original = child.userData.originalPos
-        const offset = child.userData.randomOffset
+      // 3. 惯性停止判定
+      if (Math.abs(rotationVelocityY) < 0.001 && Math.abs(rotationVelocityX) < 0.001) {
+        isInertiaActive = false
+        autoRotate = true
         
-        child.position.x = original.x + Math.sin(time * 0.5 + offset) * 0.05
-        child.position.y = original.y + Math.cos(time * 0.4 + offset) * 0.05
-        child.position.z = original.z + Math.sin(time * 0.3 + offset) * 0.05
+        // 【关键修复点】：在停止的瞬间，记录下当前的角度和时间
+        // 这样 autoRotate 逻辑就会从这里“接棒”，不会发生跳变
+        autoRotateStartTime = time
+        autoRotateStartRotationY = nodeGroup.rotation.y
+      }
+    } else if (autoRotate) {
+      // 4. 自动旋转逻辑
+      const elapsed = time - autoRotateStartTime
+      // 基于停止时的角度继续累加旋转值
+      nodeGroup.rotation.y = autoRotateStartRotationY + elapsed * 0.2
+      // 保持 X 轴回归到平稳状态或轻微晃动
+      nodeGroup.rotation.x *= 0.98 
+      
+      if (lineSegments) {
+        lineSegments.rotation.y = nodeGroup.rotation.y
+        lineSegments.rotation.x = nodeGroup.rotation.x
+      }
+    }
+
+    // 更新 Shader 时间参数
+    nodeGroup.children.forEach((child, i) => {
+      if (child instanceof THREE.Mesh && child.material.uniforms) {
+        child.material.uniforms.uTime.value = time
       }
     })
   }
@@ -350,9 +264,3 @@ function animate() {
   renderer.render(scene, camera)
 }
 </script>
-
-<style scoped>
-canvas {
-  display: block;
-}
-</style>

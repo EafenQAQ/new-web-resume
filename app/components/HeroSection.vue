@@ -1,5 +1,5 @@
 <template>
-  <section id="about" class="min-h-[85vh] flex flex-col md:flex-row justify-center items-center gap-8 animate-slide-up">
+  <section id="about" class="min-h-[85vh] flex flex-col-reverse md:flex-row justify-center items-center gap-8 animate-slide-up">
     <!-- Left: Text Content -->
     <div class="flex-1 flex flex-col justify-center items-start">
       <div
@@ -68,14 +68,14 @@
     </div>
 
     <!-- Right: 3D Animation -->
-    <div class="hidden md:flex flex-1 items-center justify-center max-w-md h-[400px]">
+    <div class="hidden md:flex flex-1 items-center justify-center max-w-lg h-[500px] overflow-visible">
       <ClientOnly>
         <HeroAnimation />
       </ClientOnly>
     </div>
 
-    <!-- Mobile: Smaller Animation -->
-    <div class="md:hidden w-full h-[250px] mt-4">
+    <!-- Mobile: 3D Animation at top -->
+    <div class="md:hidden w-full h-[300px] mb-4 overflow-visible order-1">
       <ClientOnly>
         <HeroAnimation />
       </ClientOnly>
