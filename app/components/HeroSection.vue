@@ -37,8 +37,10 @@
         class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1">
         查看项目
       </a>
-      <a href="mailto:15847007426@163.com"
-        class="px-8 py-3 border border-slate-600 rounded-lg font-bold hover:bg-white/5 transition-all flex items-center">
+      <a
+        href="#contact"
+        class="px-8 py-3 border border-slate-600 rounded-lg font-bold hover:bg-white/5 transition-all flex items-center"
+      >
         <Icon name="lucide:mail" class="w-4 h-4 mr-2" />
         联系我
       </a>
