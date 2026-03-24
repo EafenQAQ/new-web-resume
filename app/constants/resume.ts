@@ -56,7 +56,7 @@ export const projects: Project[] = [
     ],
     github: 'https://github.com/EafenQAQ/Sound-Flow',
     demo: 'https://sound-flow-e1a34.web.app/',
-    preview: '@/assets/img/soundFlow-Homepage.webp'
+    preview: '~/assets/img/soundFlow-Homepage.webp'
   },
   {
     title: 'MindFree AI 心理咨询',
@@ -71,7 +71,7 @@ export const projects: Project[] = [
     ],
     github: 'https://github.com/EafenQAQ/mindFree',
     demo: 'https://mindfree-ai.netlify.app/',
-    preview: '@/assets/img/mindFree-Chatroom.webp'
+    preview: '~/assets/img/mindFree-Chatroom.webp'
   },
   {
     title: 'Cat-Paw-Blog',
@@ -86,7 +86,7 @@ export const projects: Project[] = [
     ],
     github: 'https://github.com/EafenQAQ/vue-Blog',
     demo: 'https://cat-paw-blog.netlify.app/',
-    preview: '@/assets/img/catPawBlog-psych.webp'
+    preview: '~/assets/img/catPawBlog-psych.webp'
   },
   {
     title: 'Caff Master 仿影视飓风主页',
@@ -100,7 +100,7 @@ export const projects: Project[] = [
     ],
     github: 'https://github.com/EafenQAQ/Caff-Master',
     demo: 'https://caff-master.netlify.app/',
-    preview: '@/assets/img/caffMaster-shop.webp'
+    preview: '~/assets/img/caffMaster-shop.webp'
   },
 ]
 
