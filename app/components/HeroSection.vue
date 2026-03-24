@@ -8,7 +8,8 @@
         Open to Work
       </div>
 
-      <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+      <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight flex items-center gap-2">
+        <span class="w-20"><img class="rounded-full" :src="myAvatar" alt=""></span>
         <span class="text-gradient">Hi!</span> 初次见面
       </h1>
 
@@ -107,3 +108,11 @@
   }
 }
 </style>
+
+<script setup>
+import myAvatar from '~/assets/img/myAvatar.webp'
+
+
+
+
+</script>
