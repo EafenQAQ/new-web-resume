@@ -3,7 +3,7 @@
     :class="{ 'glass-card py-4 shadow-lg': isScrolled, 'py-6 bg-transparent': !isScrolled }">
     <div class="container mx-auto px-6 flex justify-between items-center">
       <a href="#" class="text-2xl font-bold tracking-tighter hover:text-indigo-400 transition-colors">
-        &lt;GYF /&gt;
+        &lt;Eafen /&gt;
       </a>
 
       <!-- Desktop Menu -->
