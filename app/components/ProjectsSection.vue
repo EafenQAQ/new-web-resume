@@ -17,7 +17,9 @@
           v-if="project.preview"
           class="hidden lg:block relative overflow-hidden"
         >
-          <div class="absolute inset-0 bg-blue-900/20 z-10" />
+          <a :href="project.demo" target="_blank">
+            <div class="absolute inset-0 bg-blue-900/20 z-10" />
+          </a>
           <img
             :src="project.preview"
             :alt="project.title"
@@ -28,9 +30,11 @@
         <!-- Content -->
         <div class="flex-grow p-6 md:p-8 flex flex-col">
           <div class="flex justify-between items-start mb-4">
-            <div class="p-3 bg-indigo-500/10 rounded-lg text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-              <Icon :name="`lucide:${project.icon}`" class="w-6 h-6" />
-            </div>
+            <a :href="project.demo" target="_blank" class="group">
+              <div class="p-3 flex items-center bg-indigo-500/10 rounded-lg text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                <Icon :name="`lucide:${project.icon}`" class="w-6 h-6" />
+              </div>
+            </a>
             <div class="flex space-x-3">
               <a
                 v-if="project.github"
@@ -53,9 +57,11 @@
             </div>
           </div>
 
-          <h3 class="text-2xl font-bold mb-2 group-hover:text-indigo-400 transition-colors">
-            {{ project.title }}
-          </h3>
+          <a :href="project.demo" target="_blank">
+            <h3 class="text-2xl font-bold mb-2 group-hover:text-indigo-400 transition-colors">
+              {{ project.title }}
+            </h3>
+          </a>
           <p class="text-sm text-teal-400 mb-4 font-mono">
             {{ project.subtitle }}
           </p>
