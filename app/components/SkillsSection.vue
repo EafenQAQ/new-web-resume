@@ -1,6 +1,6 @@
 <template>
   <section id="skills" class="py-20">
-    <div class="flex items-center mb-12">
+    <div v-fade-in="{ delay: 0 }" class="flex items-center mb-12">
       <div class="h-px bg-slate-700 flex-grow" />
       <h2 class="text-3xl font-bold ml-4">技术栈</h2>
     </div>
@@ -9,6 +9,7 @@
       <div
         v-for="(category, index) in skills"
         :key="index"
+        v-fade-in="{ delay: 100 + index * 100 }"
         class="glass-card rounded-xl p-6"
       >
         <h3 class="text-lg font-bold mb-4 text-indigo-400 flex items-center">
@@ -28,7 +29,7 @@
     </div>
 
     <!-- AI Coding Special Section -->
-    <div class="mt-8 glass-card rounded-xl p-8 border-l-4 border-l-teal-500 bg-gradient-to-r from-teal-900/10 to-transparent">
+    <div v-fade-in="{ delay: 500 }" class="mt-8 glass-card rounded-xl p-8 border-l-4 border-l-teal-500 bg-gradient-to-r from-teal-900/10 to-transparent">
       <div class="flex flex-col md:flex-row md:items-center justify-between">
         <div>
           <h3 class="text-xl font-bold text-teal-400 mb-2 flex items-center">

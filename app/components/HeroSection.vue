@@ -1,26 +1,29 @@
 <template>
-  <section id="about" class="min-h-[85vh] flex flex-col-reverse md:flex-row justify-center items-center gap-8 animate-slide-up">
+  <section  id="about" class="min-h-[85vh] flex flex-col-reverse md:flex-row justify-center items-center gap-8">
+
+    
     <!-- Left: Text Content -->
-    <div class="flex-1 flex flex-col justify-center items-start">
+    <div v-show="runAnimation" class="flex-1 flex flex-col justify-center items-start">
       <div
+        v-fade-in="{ delay: 0 }"
         class="mb-4 inline-flex items-center px-3 py-1 rounded-full border border-teal-500/30 bg-teal-500/10 text-teal-300 text-xs font-medium">
         <span class="animate-pulse mr-2 w-2 h-2 rounded-full bg-teal-400" />
         Open to Work
       </div>
 
       <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight flex items-center gap-2">
-        <span class="w-20"><img class="rounded-full" :src="myAvatar" alt=""></span>
-        <span class="text-gradient">Hi!</span> 初次见面
+        <img v-fade-in="{ delay: 1000 }" class="w-20 rounded-full" :src="myAvatar" alt="myAvatar">
+        <div v-fade-in="{ delay: 2000 }"><span  class="text-gradient">Hi!</span> 初次见面</div>
       </h1>
 
-      <p class="text-xl md:text-2xl text-slate-400 max-w-3xl mb-8 leading-relaxed">
+      <p v-fade-in="{ delay: 3000 }" class="text-xl md:text-2xl text-slate-400 max-w-3xl mb-8 leading-relaxed">
         我是一个从<span class="text-indigo-400 font-semibold">应用心理学</span>跨界，
         凭借<span class="text-teal-400 font-semibold">自驱力</span>闯入前端领域的开发者。
         <br class="hidden md:block">
         我不仅写代码，更懂得用<span class="text-indigo-400">同理心</span>构建用户体验。
       </p>
 
-      <div class="flex flex-wrap gap-4 mb-12">
+      <div v-fade-in="{ delay: 4000 }" class="flex flex-wrap gap-4 mb-12">
         <div class="glass-card px-6 py-3 rounded-xl flex items-center space-x-3 hover:bg-white/5 transition-all">
           <Icon name="lucide:book-open" class="text-teal-400 w-5 h-5" />
           <span class="font-mono">20+ 技术文档研读</span>
@@ -35,7 +38,7 @@
         </div>
       </div>
 
-      <div class="flex space-x-4">
+      <div v-fade-in="{ delay: 5000 }" class="flex space-x-4">
         <a href="#projects"
           class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1">
           查看项目
@@ -50,7 +53,7 @@
       </div>
 
       <!-- Quick Contact Info -->
-      <div class="mt-12 flex items-center space-x-6 text-slate-500 text-sm">
+      <div v-fade-in="{ delay: 5000 }" class="mt-12 flex items-center space-x-6 text-slate-500 text-sm">
         <span class="flex items-center">
           <Icon name="lucide:map-pin" class="w-4 h-4 mr-1" />
           杭州
@@ -83,7 +86,18 @@
     </div>
   </section>
 </template>
+<script setup>
+import myAvatar from '~/assets/img/myAvatar.webp'
 
+let runAnimation = ref(false)
+onMounted(() => {
+  runAnimation.value = true
+})
+
+
+
+
+</script>
 <style scoped>
 .text-gradient {
   background: linear-gradient(to right, #818cf8, #2dd4bf);
@@ -91,28 +105,6 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out forwards;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 </style>
 
-<script setup>
-import myAvatar from '~/assets/img/myAvatar.webp'
 
-
-
-
-</script>

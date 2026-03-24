@@ -82,3 +82,14 @@ body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Fade-in Animation for v-fade-in directive */
+.fade-in-enter {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

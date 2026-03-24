@@ -1,6 +1,6 @@
 <template>
   <section id="projects" class="py-20">
-    <div class="flex items-center mb-12">
+    <div v-fade-in="{ delay: 0 }" class="flex items-center mb-12">
       <h2 class="text-3xl font-bold mr-4">精选项目</h2>
       <div class="h-px bg-slate-700 flex-grow" />
     </div>
@@ -9,6 +9,7 @@
       <div
         v-for="(project, index) in projects"
         :key="index"
+        v-fade-in="{ delay: 100 + index * 100 }"
         class="glass-card rounded-2xl overflow-hidden transition-all duration-300 group hover:-translate-y-2 flex flex-col"
       >
         <!-- Preview Image - Desktop Only -->

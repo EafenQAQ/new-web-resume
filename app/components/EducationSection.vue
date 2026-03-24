@@ -1,6 +1,6 @@
 <template>
   <section id="education" class="py-20 flex flex-col md:flex-row gap-12">
-    <div class="md:w-1/2">
+    <div v-fade-in="{ delay: 0 }" class="md:w-1/2">
       <h2 class="text-2xl font-bold mb-6 flex items-center">
         <Icon name="lucide:graduation-cap" class="mr-3 text-indigo-400 w-6 h-6" />
         教育经历
@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="md:w-1/2">
+    <div v-fade-in="{ delay: 150 }" class="md:w-1/2">
       <h2 class="text-2xl font-bold mb-6 flex items-center">
         <Icon name="lucide:user" class="mr-3 text-indigo-400 w-6 h-6" />
         自我评价

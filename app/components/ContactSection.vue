@@ -1,6 +1,6 @@
 <template>
   <section id="contact" class="py-20">
-    <div class="flex items-center mb-12">
+    <div v-fade-in="{ delay: 0 }" class="flex items-center mb-12">
       <div class="h-px bg-slate-700 flex-grow" />
       <h2 class="text-3xl font-bold ml-4">联系方式</h2>
     </div>
@@ -8,6 +8,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Email Card -->
       <a
+        v-fade-in="{ delay: 100 }"
         href="mailto:15847007426@163.com"
         class="glass-card rounded-xl p-6 flex items-center space-x-4 hover:bg-white/5 transition-all group"
       >
@@ -23,6 +24,7 @@
 
       <!-- Phone Card -->
       <a
+        v-fade-in="{ delay: 200 }"
         href="tel:15847007426"
         class="glass-card rounded-xl p-6 flex items-center space-x-4 hover:bg-white/5 transition-all group"
       >
@@ -37,7 +39,10 @@
       </a>
 
       <!-- WeChat Card -->
-      <div class="glass-card rounded-xl p-6 flex items-center space-x-4">
+      <div
+        v-fade-in="{ delay: 300 }"
+        class="glass-card rounded-xl p-6 flex items-center space-x-4"
+      >
         <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
           <Icon name="lucide:message-circle" class="text-green-400 w-6 h-6" />
         </div>
@@ -48,7 +53,10 @@
       </div>
 
       <!-- Location Card -->
-      <div class="glass-card rounded-xl p-6 flex items-center space-x-4">
+      <div
+        v-fade-in="{ delay: 400 }"
+        class="glass-card rounded-xl p-6 flex items-center space-x-4"
+      >
         <div class="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center">
           <Icon name="lucide:map-pin" class="text-pink-400 w-6 h-6" />
         </div>
@@ -60,7 +68,7 @@
     </div>
 
     <!-- Social Links -->
-    <div class="mt-8 glass-card rounded-xl p-6">
+    <div v-fade-in="{ delay: 500 }" class="mt-8 glass-card rounded-xl p-6">
       <h3 class="text-sm text-slate-400 mb-4 text-center">更多链接</h3>
       <div class="flex flex-wrap justify-center gap-4">
         <a
