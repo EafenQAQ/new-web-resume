@@ -16,7 +16,7 @@
           v-if="project.preview"
           class="hidden lg:block relative overflow-hidden"
         >
-          <div class="absolute inset-0 bg-blue-900/30 z-10" />
+          <div class="absolute inset-0 bg-blue-900/20 z-10" />
           <img
             :src="project.preview"
             :alt="project.title"

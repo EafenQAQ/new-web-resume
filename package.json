@@ -18,11 +18,13 @@
     "nuxt": "^4.3.0",
     "nuxt-icon": "^1.0.0-beta.7",
     "tailwindcss": "^4.1.18",
+    "three": "^0.183.2",
     "typescript": "^5.9.3",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@types/three": "^0.183.1",
     "vue-tsc": "^3.2.4"
   }
 }
