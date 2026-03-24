@@ -39,7 +39,7 @@
         查看项目
       </a>
       <a
-        href="mailto:15847007426@163.com"
+        href="#contact"
         class="px-8 py-3 border border-slate-600 rounded-lg font-bold hover:bg-white/5 transition-all flex items-center"
       >
         <Icon name="lucide:mail" class="w-4 h-4 mr-2" />

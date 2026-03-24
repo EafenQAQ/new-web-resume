@@ -85,6 +85,19 @@ export const projects: Project[] = [
     github: 'https://github.com/EafenQAQ/vue-Blog',
     demo: 'https://cat-paw-blog.netlify.app/',
   },
+  {
+    title: 'Caff Master 仿影视飓风主页',
+    subtitle: '一个仿影视飓风官网主页的精美网站，以仿咖啡店商业网站为主题',
+    description: '一个精美的仿影视飓风官网主页，以仿咖啡店商业网站为主题，包含视频轮播、产品展示、导航菜单等元素',
+    icon: 'coffee',
+    stack: ['Nuxt','Vue 3',  'Vite'],
+    highlights: [
+      '仿影视飓风官网主页设计与实现',
+      '视频轮播组件，支持响应式的尺寸自适应调整',
+    ],
+    
+    demo: 'https://caff-master.netlify.app/',
+  },
 ]
 
 export const skills: SkillCategory[] = [

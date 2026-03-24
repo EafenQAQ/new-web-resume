@@ -17,6 +17,7 @@
       <AIJobMatcher />
       <SkillsSection />
       <EducationSection />
+      <ContactSection />
 
       <!-- Footer -->
       <footer class="pt-12 pb-8 text-center text-slate-600 text-sm border-t border-slate-800">
