@@ -63,10 +63,10 @@
           <Icon name="lucide:github" class="w-4 h-4 mr-1" />
           EafenQAQ
         </a>
-        <a href="https://eafen-resume.netlify.app/" target="_blank"
+        <a href="/resume.pdf" download="Eafen_resume.pdf" target="_blank"
           class="flex items-center hover:text-white transition-colors">
           <Icon name="lucide:globe" class="w-4 h-4 mr-1" />
-          Web版简历
+          个人简历
         </a>
       </div>
     </div>

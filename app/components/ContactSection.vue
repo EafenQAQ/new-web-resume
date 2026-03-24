@@ -80,14 +80,16 @@
           <span>GitHub</span>
         </a>
         <a
-          href="https://eafen-resume.netlify.app/"
+          href="/resume.pdf"
+          download="Eafen_resume.pdf"
           target="_blank"
           class="px-6 py-3 bg-slate-800/50 hover:bg-slate-700 rounded-lg transition-all flex items-center space-x-2 border border-slate-700 hover:border-slate-600"
         >
           <Icon name="lucide:globe" class="w-5 h-5" />
-          <span>网页版简历</span>
+          <span>我的简历</span>
         </a>
       </div>
     </div>
   </section>
 </template>
+   
