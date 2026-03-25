@@ -1,4 +1,3 @@
-import type { ResumeContext } from "~/types/resume";
 import { resumeContext } from "~/constants/resume";
 
 export const useAgent = () => {
@@ -66,7 +65,13 @@ const isDev = import.meta.dev && !isNetlifyDev;
         fetchOptions.headers.Authorization = `Bearer ${apiKey}`;
       }
 
-      const response = await $fetch(url, fetchOptions);
+      const response = await $fetch(url, fetchOptions) as any;
+
+      // 检查是否为错误响应
+      if (response.error) {
+        console.error("[useAgent] Ark API 返回错误:", response.error, response.details);
+        throw new Error(response.error);
+      }
 
       // Type assertion for Ark response
       type ArkContentItem = {
@@ -101,9 +106,10 @@ const isDev = import.meta.dev && !isNetlifyDev;
       }
 
       return "AI 暂时无法回应，请稍后再试。";
-    } catch (error) {
+    } catch (error: any) {
       console.error("Ark API Error:", error);
-      return "网络错误，无法连接到 AI 服务。";
+      // 抛出错误而不是返回字符串,让上层调用者处理
+      throw error;
     }
   };
 
@@ -139,18 +145,19 @@ const isDev = import.meta.dev && !isNetlifyDev;
         .trim();
 
       return JSON.parse(jsonStr) as { score: number; content: string };
-    } catch (e) {
+    } catch (e: any) {
       console.error("Parse Error:", e);
+      // 返回一个有效的 JSON 对象,而不是抛出错误
       return {
         score: 0,
-        content: "解析结果失败，请重试。",
+        content: `分析失败: ${e.message || "请重试"}`,
       };
     }
   };
 
   const chatWithResume = async (userMessage: string): Promise<string> => {
-    if (!userMessage || !apiKey) {
-      return "请确保 API Key 已配置。";
+    if (!userMessage) {
+      return "请输入消息";
     }
 
     const systemPrompt = `你扮演求职者"高一帆"。请用热情、自信、专业的口吻回答招聘者的问题。
@@ -166,7 +173,12 @@ const isDev = import.meta.dev && !isNetlifyDev;
 如果被问到不知道的事情，就说"这个问题超出了我的当前知识库，但我学得很快！"。
 `;
 
-    return await callArk(userMessage, systemPrompt);
+    try {
+      return await callArk(userMessage, systemPrompt);
+    } catch (e: any) {
+      console.error("Chat Error:", e);
+      return `抱歉,出现了错误: ${e.message}`;
+    }
   };
 
   return {

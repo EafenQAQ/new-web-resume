@@ -1,6 +1,6 @@
 import type { Context } from '@netlify/functions'
 
-console.log('[DEBUG] 完整 process.env 键名:', Object.keys(process.env).filter(k => k.includes('ARK')));
+
 
 const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/responses'
 
@@ -13,31 +13,18 @@ export default async (req: Request, context: Context) => {
   }
 
   try {
-    // 1. 获取前端传来的原始数据
     const body = await req.json()
-
-    // 2. 这里的环境变量名必须与 .env 文件中完全一致
     const apiKey = process.env.RESUME_ARK_API_KEY
     const modelId = process.env.RESUME_ARK_MODEL_ID
 
-    console.log('[Netlify Function] 环境变量:', { apiKey, modelId })
-
-    if (!apiKey || !modelId) {
-      console.error('[Netlify Function] 缺失配置:', { hasApiKey: !!apiKey, hasModelId: !!modelId })
-      return new Response(JSON.stringify({ error: 'Server configuration missing' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      })
-    }
-
-    // 3. 构造发送给火山引擎的最终 Paylaod
-    // 确保你的 body 里包含的是 'input' 或 'messages'
+    // 显式构造，确保只发送 API 需要的字段
     const requestBody = {
       model: modelId,
-      ...body
+      input: body.input, // 确保从前端传来的 body 中提取 input
+      stream: body.stream || false
     }
 
-    console.log('[Netlify Function] 正在请求火山引擎...', JSON.stringify(requestBody))
+    console.log('[Netlify Function] 转发 Payload:', JSON.stringify(requestBody))
 
     const response = await fetch(ARK_API_URL, {
       method: 'POST',
@@ -51,9 +38,19 @@ export default async (req: Request, context: Context) => {
     // 4. 获取原始响应文本，防止 AI 返回非 JSON 导致崩溃
     const responseText = await response.text()
     
+    console.log('[Netlify Function] 火山引擎返回:', responseText)
+
     // 如果火山引擎报错了，把错误透传给前端方便排查
     if (!response.ok) {
       console.error('[Netlify Function] 火山引擎返回错误:', response.status, responseText)
+      // 确保返回有效的 JSON 格式
+      return new Response(JSON.stringify({
+        error: `Ark API error: ${response.status}`,
+        details: responseText
+      }), {
+        status: response.status,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
 
     return new Response(responseText, {
