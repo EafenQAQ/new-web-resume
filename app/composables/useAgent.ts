@@ -102,9 +102,9 @@ export const useAgent = () => {
 
   const analyzeJobMatch = async (
     jobDescription: string,
-  ): Promise<{ score: number; content: string } | null> => {
+  ): Promise<{ score: number; content: string }> => {
     if (!jobDescription || !apiKey) {
-      return null;
+      throw new Error("API Key 配置不完整");
     }
 
     const systemPrompt = `你是一位专业的招聘顾问。你的任务是将候选人(高一帆)的简历与用户提供的职位描述(JD)进行匹配。
