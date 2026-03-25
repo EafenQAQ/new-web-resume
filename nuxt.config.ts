@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     arkModelId: process.env.ARK_MODEL_ID,
     // 客户端环境变量 (开发环境使用)
     public: {
+      isNetlifyDev: process.env.NETLIFY_DEV === 'true' || process.env.NETLIFY === 'true',
       arkApiKey: process.env.NUXT_PUBLIC_ARK_API_KEY,
       arkModelId: process.env.NUXT_PUBLIC_ARK_MODEL_ID,
     },

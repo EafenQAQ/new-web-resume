@@ -3,7 +3,11 @@ import { resumeContext } from "~/constants/resume";
 
 export const useAgent = () => {
   const config = useRuntimeConfig();
-  const isDev = import.meta.dev; // 开发环境判断
+ // 生产环境会注入 NETLIFY = true
+const isNetlifyDev = config.public.isNetlifyDev;
+
+// 只有当既不是生产环境，也不是 Netlify 模拟环境时，才视为纯粹的本地开发
+const isDev = import.meta.dev && !isNetlifyDev;
 
   const apiKey = config.public.arkApiKey || "";
   const modelId = config.public.arkModelId || "";
@@ -14,9 +18,12 @@ export const useAgent = () => {
   ): Promise<string> => {
     // 开发环境: 直接调用 Ark API
     // 生产环境: 调用 Netlify Function 代理
+   
+    console.log(`[useAgent] 当前环境: ${isDev ? "开发环境" : "生产环境"}`);
     const url = isDev
       ? `https://ark.cn-beijing.volces.com/api/v3/responses`
       : `/api/ark`;
+    console.log(`[useAgent] API URL: ${url}`);
 
     const input: Array<{
       role: string;
