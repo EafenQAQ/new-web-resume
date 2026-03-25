@@ -103,8 +103,13 @@ export const useAgent = () => {
   const analyzeJobMatch = async (
     jobDescription: string,
   ): Promise<{ score: number; content: string }> => {
-    if (!jobDescription || !apiKey) {
-      throw new Error("API Key 配置不完整");
+    if (!jobDescription) {
+      throw new Error("请输入职位描述");
+    }
+
+    // 开发环境需要 API Key，生产环境由 Netlify Function 代理处理
+    if (isDev && !apiKey) {
+      throw new Error("开发环境需要配置 NUXT_PUBLIC_ARK_API_KEY");
     }
 
     const systemPrompt = `你是一位专业的招聘顾问。你的任务是将候选人(高一帆)的简历与用户提供的职位描述(JD)进行匹配。
