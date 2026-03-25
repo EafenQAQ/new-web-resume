@@ -3,6 +3,8 @@ import { resumeContext } from "~/constants/resume";
 
 export const useAgent = () => {
   const config = useRuntimeConfig();
+  const isDev = import.meta.dev; // 开发环境判断
+
   const apiKey = config.public.arkApiKey || "";
   const modelId = config.public.arkModelId || "";
 
@@ -10,7 +12,11 @@ export const useAgent = () => {
     prompt: string,
     systemInstruction = "",
   ): Promise<string> => {
-    const url = `https://ark.cn-beijing.volces.com/api/v3/responses`;
+    // 开发环境: 直接调用 Ark API
+    // 生产环境: 调用 Netlify Function 代理
+    const url = isDev
+      ? `https://ark.cn-beijing.volces.com/api/v3/responses`
+      : `/api/ark`;
 
     const input: Array<{
       role: string;
@@ -30,20 +36,30 @@ export const useAgent = () => {
     });
 
     const payload = {
-      model: modelId,
       stream: false,
       input: input,
     };
 
+    // 生产环境不需要传 model，由 Netlify Function 处理
+    if (isDev) {
+      (payload as any).model = modelId;
+    }
+
     try {
-      const response = await $fetch(url, {
+      const fetchOptions: any = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
         },
         body: payload,
-      });
+      };
+
+      // 开发环境需要添加 Authorization header
+      if (isDev) {
+        fetchOptions.headers.Authorization = `Bearer ${apiKey}`;
+      }
+
+      const response = await $fetch(url, fetchOptions);
 
       // Type assertion for Ark response
       type ArkContentItem = {
