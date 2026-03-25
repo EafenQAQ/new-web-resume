@@ -9,13 +9,13 @@ export default defineNuxtConfig({
   // Runtime config for environment variables
   runtimeConfig: {
     // 服务端环境变量 (Netlify Function 使用)
-    arkApiKey: process.env.ARK_API_KEY,
-    arkModelId: process.env.ARK_MODEL_ID,
+    arkApiKey: process.env.RESUME_ARK_API_KEY,
+    arkModelId: process.env.RESUME_ARK_MODEL_ID,
     // 客户端环境变量 (开发环境使用)
     public: {
       isNetlifyDev: process.env.NETLIFY_DEV === 'true' || process.env.NETLIFY === 'true',
-      arkApiKey: process.env.NUXT_PUBLIC_ARK_API_KEY,
-      arkModelId: process.env.NUXT_PUBLIC_ARK_MODEL_ID,
+      arkApiKey: process.env.NUXT_PUBLIC_RESUME_ARK_API_KEY,
+      arkModelId: process.env.NUXT_PUBLIC_RESUME_ARK_MODEL_ID,
     },
   },
 

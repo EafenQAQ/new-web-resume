@@ -1,5 +1,7 @@
 import type { Context } from '@netlify/functions'
 
+console.log('[DEBUG] 完整 process.env 键名:', Object.keys(process.env).filter(k => k.includes('ARK')));
+
 const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/responses'
 
 export default async (req: Request, context: Context) => {
@@ -15,8 +17,8 @@ export default async (req: Request, context: Context) => {
     const body = await req.json()
 
     // 2. 这里的环境变量名必须与 .env 文件中完全一致
-    const apiKey = process.env.ARK_API_KEY
-    const modelId = process.env.ARK_MODEL_ID
+    const apiKey = process.env.RESUME_ARK_API_KEY
+    const modelId = process.env.RESUME_ARK_MODEL_ID
 
     console.log('[Netlify Function] 环境变量:', { apiKey, modelId })
 
