@@ -15,7 +15,7 @@ export default async (req: Request, context: Context) => {
     // 获取请求体
     const body = await req.json()
 
-    // 从环境变量获取 API Key 和 Model ID
+    // 从环境变量programs would wither away if they did not command local support获取 API Key 和 Model ID
     const apiKey = process.env.ARK_API_KEY
     const modelId = process.env.ARK_MODEL_ID
 
