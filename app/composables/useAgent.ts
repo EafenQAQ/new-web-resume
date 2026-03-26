@@ -1,29 +1,10 @@
 import { resumeContext } from "~/constants/resume";
 
 export const useAgent = () => {
-  const config = useRuntimeConfig();
- // 生产环境会注入 NETLIFY = true
-const isNetlifyDev = config.public.isNetlifyDev;
-
-// 只有当既不是生产环境，也不是 Netlify 模拟环境时，才视为纯粹的本地开发
-const isDev = import.meta.dev && !isNetlifyDev;
-
-  const apiKey = config.public.arkApiKey || "";
-  const modelId = config.public.arkModelId || "";
-
   const callArk = async (
     prompt: string,
     systemInstruction = "",
   ): Promise<string> => {
-    // 开发环境: 直接调用 Ark API
-    // 生产环境: 调用 Netlify Function 代理
-   
-    console.log(`[useAgent] 当前环境: ${isDev ? "开发环境" : "生产环境"}`);
-    const url = isDev
-      ? `https://ark.cn-beijing.volces.com/api/v3/responses`
-      : `/api/ark`;
-    console.log(`[useAgent] API URL: ${url}`);
-
     const input: Array<{
       role: string;
       content: Array<{ type: string; text?: string }>;
@@ -41,31 +22,16 @@ const isDev = import.meta.dev && !isNetlifyDev;
       content: [{ type: "input_text", text: prompt }],
     });
 
-    const payload = {
-      stream: false,
-      input: input,
-    };
-
-    // 生产环境不需要传 model，由 Netlify Function 处理
-    if (isDev) {
-      (payload as any).model = modelId;
-    }
-
     try {
-      const fetchOptions: any = {
+      const response = await $fetch("/api/ark", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: payload,
-      };
-
-      // 开发环境需要添加 Authorization header
-      if (isDev) {
-        fetchOptions.headers.Authorization = `Bearer ${apiKey}`;
-      }
-
-      const response = await $fetch(url, fetchOptions) as any;
+        body: {
+          input,
+        },
+      }) as any;
 
       // 检查是否为错误响应
       if (response.error) {
@@ -108,7 +74,6 @@ const isDev = import.meta.dev && !isNetlifyDev;
       return "AI 暂时无法回应，请稍后再试。";
     } catch (error: any) {
       console.error("Ark API Error:", error);
-      // 抛出错误而不是返回字符串,让上层调用者处理
       throw error;
     }
   };
@@ -120,11 +85,6 @@ const isDev = import.meta.dev && !isNetlifyDev;
       throw new Error("请输入职位描述");
     }
 
-    // 开发环境需要 API Key，生产环境由 Netlify Function 代理处理
-    if (isDev && !apiKey) {
-      throw new Error("开发环境需要配置 NUXT_PUBLIC_RESUME_ARK_API_KEY");
-    }
-
     const systemPrompt = `你是一位专业的招聘顾问。你的任务是将候选人(高一帆)的简历与用户提供的职位描述(JD)进行匹配。
 
 候选人简历数据: ${JSON.stringify(resumeContext)}
@@ -134,7 +94,7 @@ const isDev = import.meta.dev && !isNetlifyDev;
 2. "content": 一段Markdown格式的分析文本。
    - 第一部分：列出3个核心匹配点（使用无序列表）。
    - 第二部分：一段简短有力的自我推荐语（Pitch），结合候选人的心理学背景或AI能力，说明为什么适合这个岗位。
-`;
+:`;
 
     try {
       const resultText = await callArk(jobDescription, systemPrompt);
@@ -147,7 +107,6 @@ const isDev = import.meta.dev && !isNetlifyDev;
       return JSON.parse(jsonStr) as { score: number; content: string };
     } catch (e: any) {
       console.error("Parse Error:", e);
-      // 返回一个有效的 JSON 对象,而不是抛出错误
       return {
         score: 0,
         content: `分析失败: ${e.message || "请重试"}`,
@@ -171,7 +130,7 @@ const isDev = import.meta.dev && !isNetlifyDev;
 3. 自驱力强：自学能力强。
 
 如果被问到不知道的事情，就说"这个问题超出了我的当前知识库，但我学得很快！"。
-`;
+:`;
 
     try {
       return await callArk(userMessage, systemPrompt);
@@ -182,7 +141,6 @@ const isDev = import.meta.dev && !isNetlifyDev;
   };
 
   return {
-    apiKey,
     analyzeJobMatch,
     chatWithResume,
   };
