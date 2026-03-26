@@ -112,6 +112,10 @@ const sendMessage = async () => {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
   }
 }
+
+defineExpose({
+  chatOpen,
+})
 </script>
 
 <style scoped>

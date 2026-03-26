@@ -27,7 +27,7 @@
     </main>
 
     <!-- Chat Bot -->
-    <AIChatBot />
+    <AIChatBot ref="chatBotRef" />
   </div>
 </template>
 
@@ -37,5 +37,30 @@ useHead({
   meta: [
     { name: 'description', content: '前端开发工程师简历 - 高一帆' }
   ]
+})
+
+const chatBotRef = ref<{ chatOpen: ReturnType<typeof ref> } | null>(null)
+let hasTriggeredAtBottom = false
+
+const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const scrollHeight = document.documentElement.scrollHeight
+  const clientHeight = document.documentElement.clientHeight
+
+  // 距离底部 100px 时触发
+  const isAtBottom = scrollTop + clientHeight >= scrollHeight - 100
+
+  if (isAtBottom && !hasTriggeredAtBottom && chatBotRef.value) {
+    hasTriggeredAtBottom = true
+    chatBotRef.value.chatOpen = true
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
