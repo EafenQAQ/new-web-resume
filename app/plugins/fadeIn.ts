@@ -4,6 +4,7 @@ interface FadeInOptions {
   delay?: number
   duration?: number
   distance?: number
+  immediate?: boolean
 }
 
 const observerMap = new WeakMap<Element, IntersectionObserver>()
@@ -14,6 +15,7 @@ const fadeIn: Directive<HTMLElement, FadeInOptions> = {
     const delay = options.delay || 0
     const duration = options.duration || 600
     const distance = options.distance || 30
+    const immediate = options.immediate || false
 
     // 设置初始样式
     el.style.opacity = '0'
@@ -24,6 +26,35 @@ const fadeIn: Directive<HTMLElement, FadeInOptions> = {
 
     // 添加初始类
     el.classList.add('fade-in-enter')
+
+    // 触发动画函数
+    const triggerAnimation = () => {
+      el.classList.remove('fade-in-enter')
+      el.classList.add('fade-in-visible')
+      el.style.opacity = '1'
+      el.style.transform = 'translateY(0)'
+
+      // 动画完成后清理
+      setTimeout(() => {
+        el.style.transition = ''
+        el.style.transitionDelay = ''
+        el.style.willChange = ''
+      }, duration + delay)
+    }
+
+    if (immediate) {
+      // 立即触发动画，忽略 IntersectionObserver
+      import('vue').then(({ nextTick }) => {
+        nextTick(() => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              triggerAnimation()
+            })
+          })
+        })
+      })
+      return
+    }
 
     // 创建 Intersection Observer
     const observer = new IntersectionObserver(
