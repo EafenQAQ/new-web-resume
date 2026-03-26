@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     // 服务端环境变量 (Server Route 代理使用)
     arkApiKey: process.env.RESUME_ARK_API_KEY,
     arkModelId: process.env.RESUME_ARK_MODEL_ID,
+    geminiApiKey: process.env.GEMINI_API_KEY,
   },
 
   // App configuration

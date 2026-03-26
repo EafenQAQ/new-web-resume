@@ -1,9 +1,12 @@
 import { resumeContext } from "~/constants/resume";
 
+type ApiProvider = "ark" | "gemini";
+
 export const useAgent = () => {
-  const callArk = async (
+  const callAI = async (
     prompt: string,
     systemInstruction = "",
+    provider: ApiProvider = "gemini", // 默认使用 Gemini
   ): Promise<string> => {
     const input: Array<{
       role: string;
@@ -22,8 +25,10 @@ export const useAgent = () => {
       content: [{ type: "input_text", text: prompt }],
     });
 
+    const apiUrl = provider === "gemini" ? "/api/gemini" : "/api/ark";
+
     try {
-      const response = await $fetch("/api/ark", {
+      const response = await $fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,29 +40,29 @@ export const useAgent = () => {
 
       // 检查是否为错误响应
       if (response.error) {
-        console.error("[useAgent] Ark API 返回错误:", response.error, response.details);
+        console.error(`[useAgent] ${provider.toUpperCase()} API 返回错误:`, response.error, response.details);
         throw new Error(response.error);
       }
 
-      // Type assertion for Ark response
-      type ArkContentItem = {
+      // Type assertion for response
+      type ContentItem = {
         type: string;
         text?: string;
       };
 
-      type ArkOutputItem = {
+      type OutputItem = {
         type: string;
         role?: string;
-        content?: Array<ArkContentItem>;
+        content?: Array<ContentItem>;
         status?: string;
       };
 
-      type ArkResponse = {
-        output?: Array<ArkOutputItem>;
+      type AIResponse = {
+        output?: Array<OutputItem>;
         status?: string;
       };
 
-      const data = response as ArkResponse;
+      const data = response as AIResponse;
 
       // Find the message output item
       const messageOutput = data.output?.find((item) => item.type === "message");
@@ -73,13 +78,14 @@ export const useAgent = () => {
 
       return "AI 暂时无法回应，请稍后再试。";
     } catch (error: any) {
-      console.error("Ark API Error:", error);
+      console.error(`${provider.toUpperCase()} API Error:`, error);
       throw error;
     }
   };
 
   const analyzeJobMatch = async (
     jobDescription: string,
+    provider: ApiProvider = "gemini",
   ): Promise<{ score: number; content: string }> => {
     if (!jobDescription) {
       throw new Error("请输入职位描述");
@@ -94,10 +100,10 @@ export const useAgent = () => {
 2. "content": 一段Markdown格式的分析文本。
    - 第一部分：列出3个核心匹配点（使用无序列表）。
    - 第二部分：一段简短有力的自我推荐语（Pitch），结合候选人的心理学背景或AI能力，说明为什么适合这个岗位。
-:`;
+::`;
 
     try {
-      const resultText = await callArk(jobDescription, systemPrompt);
+      const resultText = await callAI(jobDescription, systemPrompt, provider);
       // Clean up JSON if LLM adds backticks
       const jsonStr = resultText
         .replace(/```json/g, "")
@@ -114,7 +120,10 @@ export const useAgent = () => {
     }
   };
 
-  const chatWithResume = async (userMessage: string): Promise<string> => {
+  const chatWithResume = async (
+    userMessage: string,
+    provider: ApiProvider = "gemini",
+  ): Promise<string> => {
     if (!userMessage) {
       return "请输入消息";
     }
@@ -130,10 +139,10 @@ export const useAgent = () => {
 3. 自驱力强：自学能力强。
 
 如果被问到不知道的事情，就说"这个问题超出了我的当前知识库，但我学得很快！"。
-:`;
+::`;
 
     try {
-      return await callArk(userMessage, systemPrompt);
+      return await callAI(userMessage, systemPrompt, provider);
     } catch (e: any) {
       console.error("Chat Error:", e);
       return `抱歉,出现了错误: ${e.message}`;
